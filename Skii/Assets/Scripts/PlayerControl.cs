@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,11 +16,13 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] private float disabledTime = 1;
     private float lastCollisionTime;
     public static Transform player;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private Animator animator;
+
     void Awake()
     {
         move = InputSystem.actions.FindAction("Player/Move");
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
         player = transform;
     }
 
@@ -44,7 +47,7 @@ public class PlayerControl : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if(Time.timeSinceLevelLoad > lastCollisionTime+disabledTime)
+        if(Time.timeSinceLevelLoad > lastCollisionTime + disabledTime)
             disabledControl = false;
         grounded = Physics.Linecast(transform.position, 
             transform.position + Vector3.down, groundMask);
@@ -55,7 +58,10 @@ public class PlayerControl : MonoBehaviour
                 transform.position + Vector3.down, lineCol);
         if (grounded && !disabledControl)
         {
-            rb.AddForce(transform.forward * speed * Time.fixedDeltaTime);
+            Vector3 newVelocity = transform.forward * speed;
+            newVelocity.y = rb.linearVelocity.y;
+            rb.linearVelocity = newVelocity;
+
             Vector2 moveInput = move.ReadValue<Vector2>();
             Debug.Log("x: " + moveInput.x + " y: " + moveInput.y);
             transform.Rotate(0, -moveInput.x * rotSpeed * Time.fixedDeltaTime, 0);
@@ -63,5 +69,18 @@ public class PlayerControl : MonoBehaviour
             float speedMult = Mathf.Cos(turnAngle * Mathf.Deg2Rad);
             Debug.Log("turn angle: " + turnAngle);
         }
+
+        animator.SetFloat("playerSpeed", rb.linearVelocity.magnitude);
+        animator.SetBool("grounded", grounded);
+    }
+
+    public bool IsGrounded()
+    {
+        return grounded;
+    }
+
+    public bool IsMoving()
+    {
+        return rb.linearVelocity.magnitude > 0.5f;
     }
 }

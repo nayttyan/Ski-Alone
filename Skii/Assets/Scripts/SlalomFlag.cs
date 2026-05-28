@@ -1,7 +1,10 @@
 using UnityEngine;
+using static GameManager;
 
 public class SlalomFlag : MonoBehaviour
 {
+    public static event TimerEvent OnCorrectPass;
+    public static event TimerEvent OnWrongPass;
     private enum Direction {  Left, Right };
     [SerializeField] private Direction direction;
     [SerializeField] private Material goodMat, badMat;
@@ -27,14 +30,22 @@ public class SlalomFlag : MonoBehaviour
             flagPassed = true;
             Debug.LogError("Player passed on: " + passingDirection);
             MeshRenderer renderer = GetComponent<MeshRenderer>();
-            if(passingDirection == direction )
+            if (passingDirection == direction)
             {
                 renderer.material = goodMat;
+
+                if (OnCorrectPass != null)
+                    OnCorrectPass.Invoke();
             }
             else
             {
                 renderer.material = badMat;
-                RacePenalty.Invoke();
+
+                if (RacePenalty != null)
+                    RacePenalty.Invoke();
+
+                if (OnWrongPass != null)
+                    OnWrongPass.Invoke();
             }
 
             if (passingDirection == direction)

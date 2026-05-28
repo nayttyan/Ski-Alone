@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7546200139833346583}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 202.82, y: 238.27997, z: 207.04216}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -103,6 +103,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04b2eb50e215ea447a89fe4decefb8e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlalomFlag
-  direction: 0
-  goodMat: {fileID: 0}
-  badMat: {fileID: 0}
+  direction: 1
+  goodMat: {fileID: 2100000, guid: ab24cdd4286c3f5459fb0d986b684d3a, type: 2}
+  badMat: {fileID: 2100000, guid: 7ebeeacd841630e4f9fc84e167622e35, type: 2}

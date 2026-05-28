@@ -10,15 +10,29 @@ public class GameManager : MonoBehaviour
     private bool racing=false;
     public delegate void TimerEvent();
     private TimeSpan bestTime;
-    [SerializeField] private int penaltyTimeVal = 3;
+   // [SerializeField] private int penaltyTimeVal = 3; //on
     [SerializeField] private TMP_Text raceTimeText, bestTimeText;
     [SerializeField] private string bestTimeKey = "LVLBestTime";
+
+    [SerializeField] private int flagPenaltyTime = 1; //delete
+    [SerializeField] private int hitPenaltyTime = 3; //delete
+
+    public static event Action<int> PenaltyAdded; //delete
 
     private void OnEnable()
     {
         StarpGate.StartRace += OnRaceStart;
         FinishGate.FinishRace += OnRaceFinish;
-        SlalomFlag.RacePenalty += AddRacePenalty;
+        SlalomFlag.RacePenalty += AddFlagPenalty; //change to 
+        Obstacles.OnPlayerHit += AddHitPenalty;
+    }
+
+    private void OnDisable()
+    {
+        StarpGate.StartRace -= OnRaceStart;
+        FinishGate.FinishRace -= OnRaceFinish;
+        SlalomFlag.RacePenalty -= AddFlagPenalty;  //change to SlalomFlag.RacePenalty += AddRacePenalty;
+        Obstacles.OnPlayerHit -= AddHitPenalty; //delete
     }
 
     private void Start()
@@ -36,10 +50,23 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void AddRacePenalty()
+    /* void AddRacePenalty()
+     {
+         penaltyTime += new TimeSpan(0, 0, penaltyTimeVal);
+     }*/ //onnnn
+
+    void AddFlagPenalty() //delete
     {
-        penaltyTime += new TimeSpan(0, 0, penaltyTimeVal);
+        penaltyTime += new TimeSpan(0, 0, flagPenaltyTime);
+        PenaltyAdded?.Invoke(flagPenaltyTime);
     }
+
+    void AddHitPenalty() //delete
+    {
+        penaltyTime += new TimeSpan(0, 0, hitPenaltyTime);
+        PenaltyAdded?.Invoke(hitPenaltyTime);
+    }
+
     void OnRaceStart()
     {
         racing = true;
@@ -50,7 +77,16 @@ public class GameManager : MonoBehaviour
     void OnRaceFinish()
     {
         racing = false;
-        if(raceTime < bestTime)
+        float raceTimeF = (float)raceTime.TotalMilliseconds / 1000f;
+        if (GameData.Instance != null)
+        {
+            GameData.Instance.AddTime(raceTimeF);
+        }
+        else
+        {
+            Debug.Log("GameData.Instance is NULL");
+        }
+        if (raceTime < bestTime)
         {
             bestTime = raceTime;
             bestTimeText.text = "BEST TIME: " + bestTime.ToString("ss\\:ff");
